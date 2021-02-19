@@ -35,21 +35,22 @@ class LetsAdsTransportFactory extends AbstractTransportFactory
     public function create(Dsn $dsn): TransportInterface
     {
         $scheme   = $dsn->getScheme();
+
+        if ('letsads' !== $scheme) {
+            throw new UnsupportedSchemeException($dsn, 'letsads', $this->getSupportedSchemes());
+        }
+
         $login    = $this->getUser($dsn);
         $password = $this->getPassword($dsn);
         $from     = $dsn->getOption('from');
         $host     = 'default' === $dsn->getHost() ? null : $dsn->getHost();
         $port     = $dsn->getPort();
 
-        if ('letsads' === $scheme) {
-            $transport = new LetsAdsTransport($login, $password, $from, $this->client, $this->dispatcher);
-            $transport->setHost($host);
-            $transport->setPort($port);
+        $transport = new LetsAdsTransport($login, $password, $from, $this->client, $this->dispatcher);
+        $transport->setHost($host);
+        $transport->setPort($port);
 
-            return $transport;
-        }
-
-        throw new UnsupportedSchemeException($dsn, 'letsads', $this->getSupportedSchemes());
+        return $transport;
     }
 
 }
